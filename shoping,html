@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Hitung Harga Akhir</title>
+</head>
+<body>
+  <h2>Hitung Harga Akhir Produk</h2>
+  <button onclick="hitungHarga()">Hitung Harga</button>
+
+  <script>
+    function hitungHarga() {
+      let totalBelanja = parseFloat(prompt("Masukkan total belanja (dalam Rupiah):"));
+      if (isNaN(totalBelanja) || totalBelanja < 0) {
+        alert("Masukkan angka yang valid!");
+        return;
+      }
+
+      let diskon = 0;
+      let persenDiskon = 0;
+
+      if (totalBelanja > 1000000) {
+        diskon = 0.15;
+        persenDiskon = 15;
+      } else if (totalBelanja > 500000) {
+        diskon = 0.10;
+        persenDiskon = 10;
+      } else {
+        diskon = 0;
+        persenDiskon = 0;
+      }
+      
+      let hargaAkhir = totalBelanja - (totalBelanja * diskon);
+      let formatRupiah = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0
+      }).format(hargaAkhir);
+      alert(`Diskon: ${persenDiskon}%\nHarga Akhir: ${formatRupiah}`);
+    }
+  </script>
+</body>
+</html>
