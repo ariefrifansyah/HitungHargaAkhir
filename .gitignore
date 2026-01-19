@@ -1,0 +1,4 @@
+node_modules/
+student-management-system/node_modules/
+*.db
+*.log
