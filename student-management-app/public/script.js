@@ -5,10 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelBtn = document.getElementById('cancelBtn');
     const editIndexInput = document.getElementById('editIndex');
 
-    let students = JSON.parse(localStorage.getItem('students')) || [];
+    let students = [];
 
-    function saveStudents() {
-        localStorage.setItem('students', JSON.stringify(students));
+    // Fetch students from API
+    async function fetchStudents() {
+        try {
+            const response = await fetch('/api/students');
+            const result = await response.json();
+            if (result.message === 'success') {
+                students = result.data;
+                renderStudents();
+            } else {
+                console.error('Failed to fetch students:', result.error);
+            }
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
     }
 
     function renderStudents() {
@@ -43,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.className = 'action-btn delete-btn';
-            deleteBtn.onclick = () => deleteStudent(index);
+            deleteBtn.onclick = () => deleteStudent(student.id);
             actionCell.appendChild(deleteBtn);
 
             row.appendChild(actionCell);
@@ -59,17 +71,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('class').value = student.class;
         document.getElementById('grade').value = student.grade;
 
-        editIndexInput.value = index;
+        editIndexInput.value = student.id; // Store database ID, not array index
         submitBtn.textContent = 'Update Student';
         cancelBtn.style.display = 'inline-block';
     };
 
-    window.deleteStudent = (index) => {
+    window.deleteStudent = async (id) => {
         if (confirm('Are you sure you want to delete this student?')) {
-            students.splice(index, 1);
-            saveStudents();
-            renderStudents();
-            resetForm();
+            try {
+                const response = await fetch(`/api/students/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.message === 'deleted') {
+                    fetchStudents();
+                    resetForm();
+                } else {
+                    alert('Failed to delete student: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error deleting student:', error);
+            }
         }
     };
 
@@ -82,14 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cancelBtn.addEventListener('click', resetForm);
 
-    studentForm.addEventListener('submit', (e) => {
+    studentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const name = document.getElementById('name').value;
         const studentId = document.getElementById('studentId').value;
         const studentClass = document.getElementById('class').value;
         const grade = document.getElementById('grade').value;
-        const editIndex = editIndexInput.value;
+        const editId = editIndexInput.value;
 
         const studentData = {
             name,
@@ -98,18 +120,44 @@ document.addEventListener('DOMContentLoaded', () => {
             grade
         };
 
-        if (editIndex === '') {
-            // Create
-            students.push(studentData);
-        } else {
-            // Update
-            students[editIndex] = studentData;
+        try {
+            if (editId === '') {
+                // Create
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                const result = await response.json();
+                if (result.message !== 'success') {
+                     alert('Error adding student: ' + result.error);
+                     return;
+                }
+            } else {
+                // Update
+                const response = await fetch(`/api/students/${editId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                const result = await response.json();
+                if (result.message !== 'success') {
+                     alert('Error updating student: ' + result.error);
+                     return;
+                }
+            }
+            fetchStudents();
+            resetForm();
+        } catch (error) {
+            console.error('Error saving student:', error);
+            alert('An error occurred. Please try again.');
         }
-
-        saveStudents();
-        renderStudents();
-        resetForm();
     });
 
-    renderStudents();
+    // Initial load
+    fetchStudents();
 });
