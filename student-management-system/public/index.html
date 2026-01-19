@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Data Mahasiswa</h1>
+
+        <form id="studentForm">
+            <input type="hidden" id="studentId">
+            <input type="text" id="nim" placeholder="NIM" required>
+            <input type="text" id="name" placeholder="Nama Lengkap" required>
+            <input type="text" id="major" placeholder="Jurusan" required>
+            <input type="number" id="year" placeholder="Tahun Masuk" required>
+            <button type="submit" id="submitBtn">Tambah Mahasiswa</button>
+            <button type="button" id="cancelBtn" style="display:none; background-color: #6c757d;">Batal</button>
+        </form>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>NIM</th>
+                    <th>Nama</th>
+                    <th>Jurusan</th>
+                    <th>Tahun</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
